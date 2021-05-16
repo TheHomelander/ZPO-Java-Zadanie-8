@@ -25,6 +25,7 @@ public class Share {
         return "Share{" +
                 "name='" + name + '\'' +
                 ", pricePerShare=" + pricePerShare +
+                ", Owned shares=" + numberOfOwnedShares +
                 ", All Share Number=" + numberOfAllAvailableShares +
                 '}';
     }

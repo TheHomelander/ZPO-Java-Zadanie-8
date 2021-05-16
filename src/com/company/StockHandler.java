@@ -1,12 +1,18 @@
 package com.company;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class StockHandler {
     private StockExchange myStock = null;
     private UserAccount myUser = null;
-    private List<Trade> currentTrades = null;
+    private volatile List<Trade> currentTrades = new ArrayList<>();
 
+    StockHandler(UserAccount user)
+    {
+        myUser = user;
+    }
 
     public StockExchange getMyStock() {
         return myStock;
@@ -45,6 +51,32 @@ public class StockHandler {
         return i;
     }
 
+    public void updatePrices() {
+        boolean isOperationAdding = ( generateRandomIntInRange(0 , 1) == 0 );
+        final int minPriceChange = 1;
+        final int maxPriceChange = 3;
+        int priceChangeValue;
+        List<Share> availableShares = myStock.getAvailableShares();
+
+        for(Share ts : availableShares)
+        {
+            priceChangeValue = generateRandomIntInRange(maxPriceChange, minPriceChange);
+            if(isOperationAdding)
+            {
+                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
+            }
+            else
+            {
+                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
+            }
+            for( Share us : myUser.getMyShares() ){
+                if(ts.getName() == us.getName())
+                    us.setPricePerShare(ts.getPricePerShare());
+            }
+        }
+    }
+
+
     private void initShares() {
         Integer[] possibleSharesNameIndex = {0, 1 ,2 ,3 ,4 , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
         final int maxShares = 10;
@@ -65,7 +97,7 @@ public class StockHandler {
         System.out.println("NUMBER OF SHARES " + numberOfSharesToRandomize);
         for(int i = 0 ; i < numberOfSharesToRandomize ; i++)
         {
-            numberOfAllExhistingShares = generateRandomIntInRange(maxNumberOfAllExistingShares, minNumberOfAllExistingShares);;
+            numberOfAllExhistingShares = generateRandomIntInRange(maxNumberOfAllExistingShares, minNumberOfAllExistingShares);
             while ( true)
             {
                 randomShareNameIndex = generateRandomIntInRange(maxNameIndex, minNameIndex);
@@ -87,15 +119,62 @@ public class StockHandler {
 
     }
 
+
+    public void executeValidTrades()
+    {
+        Share shareInStock;
+        Trade trade;
+        for(Iterator<Trade> iterator = currentTrades.iterator(); iterator.hasNext();)
+        {
+            trade = iterator.next();
+            shareInStock = myStock.getShareByName(trade.getStockName(), myStock.getAvailableShares());
+            if(trade.getOperationType() == Trade.OperationType.Buy)
+            {
+                if( trade.getSharePrice() >=  shareInStock.getPricePerShare() && trade.getNumberOfShares() <= shareInStock.getNumberOfOwnedShares() )
+                {
+                    myStock.buyStock(shareInStock, trade.getNumberOfShares(), myUser, trade.getTradeID());
+                    iterator.remove();
+                }
+            }
+            else
+            {
+                if( trade.getSharePrice() <=  shareInStock.getPricePerShare() )
+                {
+                    myStock.sellStock(shareInStock, trade.getNumberOfShares(), myUser, trade.getTradeID());
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
         // write your code here
-
-        StockHandler stockHandler = new StockHandler();
+        UserAccount userAccount = new UserAccount();
+        StockHandler stockHandler = new StockHandler(userAccount);
+        UserInteractions userInteractions = new UserInteractions(stockHandler, userAccount);
         stockHandler.initStockExchange();
-        StockRunCycle sh = new StockRunCycle(stockHandler.getMyStock());
+        StockRunCycle sh = new StockRunCycle(stockHandler);
         sh.start();
-
-
+        while (true)
+        {
+            System.out.println(userInteractions.generateActionList());
+            int userInput = userInteractions.getIntFromUser();
+            switch (userInput) {
+                case 1:
+                    System.out.println(stockHandler.getMyStock().generateStringOfAvailableShares());
+                    break;
+                case 2:
+                    System.out.println("===== Shares availabe to buy =====\n" + stockHandler.getMyStock().generateStringOfAvailableShares());
+                    userInteractions.makeTradeRequest();
+                    break;
+                case 3:
+                    System.out.println(stockHandler.getMyUser().generateStringOfOwnedShares());
+                    break;
+                case 4:
+                    System.exit(0);
+                    break;
+            }
+        }
 
     }
 

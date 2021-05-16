@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StockExchange {
-    private List<Share> availableShares = new ArrayList<>();
+    private volatile List<Share> availableShares = new ArrayList<>();
+    private int numberOfShares = 0;
     public static final String[] availableSharesArray = {
                                                          "PKOBP", "PNORLEN", "CDPROJECT", "TESLA", "LOTOS",
                                                          "ALLEGRO", "PZU", "ACTION", "AGORA", "AIRWAY",
@@ -14,7 +15,6 @@ public class StockExchange {
 
     StockExchange()
     {
-
     }
 
     public List<Share> getAvailableShares() {
@@ -29,8 +29,10 @@ public class StockExchange {
     public String generateStringOfAvailableShares()
     {
         String generatedString = "";
+        int index = 0;
         for(Share ts : availableShares){
-            generatedString += ts.toString() + "\n";
+            generatedString += "["+ index + "]" + ts.toString() + "\n";
+            index++;
         }
         return generatedString;
     }
@@ -41,6 +43,17 @@ public class StockExchange {
         return i;
     }
 
+    public Share getShareByName(String stockName, List<Share> sc)
+    {
+        for(Share ts : sc)
+        {
+            if( ts.getName().equalsIgnoreCase(stockName))
+            {
+                return ts;
+            }
+        }
+        return  null;
+    }
 /*    private double returnRandomDoubleInRange(double max, double min)
     {
         double i = (Math.random() * (max - min + 1)) + min;
@@ -50,49 +63,54 @@ public class StockExchange {
         return (double) tmp / factor;
     }*/
 
-    public void updatePrices() {
-        boolean isOperationAdding = ( generateRandomIntInRange(0 , 1) == 0 );
-        final int minPriceChange = 1;
-        final int maxPriceChange = 3;
-        int priceChangeValue;
 
-        for(Share ts : availableShares)
+
+    public void buyStock(Share shareInStock, int numberOfShares, UserAccount myUser, String tradeID)
+    {
+        //TODO: make exception not to set negative number of shares
+        shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() - numberOfShares);
+        double newPrice = shareInStock.getPricePerShare() + ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
+        shareInStock.setPricePerShare(newPrice);
+        Share userShare;
+        if( (userShare = getShareByName(shareInStock.getName(), myUser.getMyShares())) == null )
         {
-            priceChangeValue = generateRandomIntInRange(maxPriceChange, minPriceChange);
-            if(isOperationAdding)
-            {
-                if((ts.getPricePerShare() + priceChangeValue) <= 1000)
-                {
-                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
-                }else
-                {
-                    ts.setPricePerShare(1000);
-                }
-            }
-            else
-            {
-                if((ts.getPricePerShare() - priceChangeValue) >= 1)
-                {
-                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
-                }else
-                {
-                    ts.setPricePerShare(1);
-                }
-            }
+            userShare = new Share(shareInStock.getName(),shareInStock.getPricePerShare(), numberOfShares, shareInStock.getNumberOfAllAvailableShares() );
+            myUser.getMyShares().add(userShare);
         }
+        else
+        {
+            userShare.setPricePerShare(newPrice);
+            userShare.setPricePerShare(newPrice);
+        }
+        System.out.println(
+                            "*****************************************************\n" +
+                            "Trade Completed:\n" +
+                            "Trade operation: Buy\n" +
+                            "Share name: " + shareInStock.getName() + '\n' +
+                            "Trade iD: " + tradeID + "\n" +
+                            "User iD: " + myUser.getIdLabel() + '\n' +
+                            "*****************************************************\n"
+                          );
     }
 
-    public void buyStock(String name, int numberOfShares)
+    public void sellStock(Share shareInStock, int numberOfShares, UserAccount myUser, String tradeID)
     {
+        Share userShare = getShareByName(shareInStock.getName(), myUser.getMyShares());
 
+        double newPrice = shareInStock.getPricePerShare() - ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
+
+        userShare.setNumberOfOwnedShares(userShare.getNumberOfOwnedShares() - numberOfShares);
+        userShare.setPricePerShare(newPrice);
+
+        shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() + numberOfShares);
+        shareInStock.setPricePerShare(newPrice);
+
+        System.out.println(
+                "Trade Complete:\n" +
+                        "Trade operation: Sell\n" +
+                        "Trade iD: " + tradeID + "\n"
+        );
     }
-
-    public void sellStock(String name, int numberOfShares)
-    {
-
-    }
-
-
 
 
 
