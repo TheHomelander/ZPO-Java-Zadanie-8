@@ -12,10 +12,10 @@ public class UserInteractions {
         userAccount = currentUser;
     }
 
-    public String generateActionList()
+    public String generateUserAvailableActionsLegend()
     {
         return "*****************************************************\n" +
-                "Input 1, to see current Stock prices with its indexes\n" +
+                "Input 1, to see current Stock prices (PLN) with its indexes\n" +
                 "Input 2, to make trade request\n" +
                 "Input 3, to see your owned shares\n" +
                 "Input 4, to close the stock exchange\n" +

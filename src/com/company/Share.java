@@ -2,7 +2,7 @@ package com.company;
 
 public class Share {
     static public int minPricePerShare = 1;
-    static public int maxPricePerShare = 1000;
+    static public int maxPricePerShare = 10000;
 
     private int numberOfAllAvailableShares;
     private int numberOfOwnedShares;
@@ -24,7 +24,7 @@ public class Share {
     public String toString() {
         return "Share{" +
                 "name='" + name + '\'' +
-                ", pricePerShare=" + pricePerShare +
+                ", pricePerShare=" + String.format("%.4f" ,pricePerShare) +
                 ", Owned shares=" + numberOfOwnedShares +
                 ", All Share Number=" + numberOfAllAvailableShares +
                 '}';

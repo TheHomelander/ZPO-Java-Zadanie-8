@@ -13,6 +13,7 @@ public class StockExchange {
                                                         };
 
 
+
     StockExchange()
     {
     }
@@ -25,6 +26,13 @@ public class StockExchange {
         this.availableShares = availableShares;
     }
 
+    public int getNumberOfShares() {
+        return numberOfShares;
+    }
+
+    public void setNumberOfShares(int numberOfShares) {
+        this.numberOfShares = numberOfShares;
+    }
 
     public String generateStringOfAvailableShares()
     {
@@ -35,12 +43,6 @@ public class StockExchange {
             index++;
         }
         return generatedString;
-    }
-
-    private int generateRandomIntInRange(int max, int min)
-    {
-        int i = (int) (Math.random() * (max - min + 1)) + min;
-        return i;
     }
 
     public Share getShareByName(String stockName, List<Share> sc)
@@ -54,24 +56,17 @@ public class StockExchange {
         }
         return  null;
     }
-/*    private double returnRandomDoubleInRange(double max, double min)
+
+    public void buyStock(Share shareInStock, int numberOfShares, UserAccount myUser)
     {
-        double i = (Math.random() * (max - min + 1)) + min;
-        long factor = (long) Math.pow(10, 2);
-        i = i * factor;
-        long tmp = Math.round(i);
-        return (double) tmp / factor;
-    }*/
-
-
-
-    public void buyStock(Share shareInStock, int numberOfShares, UserAccount myUser, String tradeID)
-    {
-        //TODO: make exception not to set negative number of shares
-        shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() - numberOfShares);
-        double newPrice = shareInStock.getPricePerShare() + ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
-        shareInStock.setPricePerShare(newPrice);
+        double newPrice;
         Share userShare;
+        if((shareInStock.getNumberOfOwnedShares() - numberOfShares < 0 ))numberOfShares = shareInStock.getNumberOfOwnedShares();
+
+        shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() - numberOfShares);
+        newPrice = shareInStock.getPricePerShare() + ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
+        shareInStock.setPricePerShare(newPrice);
+
         if( (userShare = getShareByName(shareInStock.getName(), myUser.getMyShares())) == null )
         {
             userShare = new Share(shareInStock.getName(),shareInStock.getPricePerShare(), numberOfShares, shareInStock.getNumberOfAllAvailableShares() );
@@ -82,18 +77,10 @@ public class StockExchange {
             userShare.setPricePerShare(newPrice);
             userShare.setPricePerShare(newPrice);
         }
-        System.out.println(
-                            "*****************************************************\n" +
-                            "Trade Completed:\n" +
-                            "Trade operation: Buy\n" +
-                            "Share name: " + shareInStock.getName() + '\n' +
-                            "Trade iD: " + tradeID + "\n" +
-                            "User iD: " + myUser.getIdLabel() + '\n' +
-                            "*****************************************************\n"
-                          );
+
     }
 
-    public void sellStock(Share shareInStock, int numberOfShares, UserAccount myUser, String tradeID)
+    public void sellStock(Share shareInStock, int numberOfShares, UserAccount myUser)
     {
         Share userShare = getShareByName(shareInStock.getName(), myUser.getMyShares());
 
@@ -105,11 +92,7 @@ public class StockExchange {
         shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() + numberOfShares);
         shareInStock.setPricePerShare(newPrice);
 
-        System.out.println(
-                "Trade Complete:\n" +
-                        "Trade operation: Sell\n" +
-                        "Trade iD: " + tradeID + "\n"
-        );
+
     }
 
 
