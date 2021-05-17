@@ -1,8 +1,8 @@
 package com.company;
 
 public class Share {
-    static public int minPricePerShare = 1;
-    static public int maxPricePerShare = 10000;
+    static public double minPricePerShare = 1.0;
+    static public double maxPricePerShare = 10000.0;
 
     private int numberOfAllAvailableShares;
     private int numberOfOwnedShares;

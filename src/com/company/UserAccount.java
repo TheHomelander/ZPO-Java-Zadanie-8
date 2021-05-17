@@ -8,7 +8,6 @@ public class UserAccount {
     private final String idLabel;
 
     private volatile List<Share> myShares = new ArrayList<>();
-    private List<Trade> myTrades;
 
     private static int iD = 0;
 
@@ -39,14 +38,6 @@ public class UserAccount {
         this.myShares = myShares;
     }
 
-    public List<Trade> getMyTrades() {
-        return myTrades;
-    }
-
-    public void setMyTrades(List<Trade> myTrades) {
-        this.myTrades = myTrades;
-    }
-
     public static int getiD() {
         return iD;
     }
@@ -57,9 +48,9 @@ public class UserAccount {
 
     public String generateStringOfOwnedShares()
     {
-        String ownedShares = "===== Owned shares =====\n";
+        String ownedShares = "=== Your Owned shares ===\n";
         for(Share ts : myShares)ownedShares = ownedShares + '\n' + ts.toString();
-        return ownedShares;
+        return ownedShares + "========= End  ==========\n";
     }
 
 }

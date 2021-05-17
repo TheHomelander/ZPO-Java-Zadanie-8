@@ -14,14 +14,13 @@ public class StockRunCycle extends  Thread{
         try
         {
             while (true) {
-                //System.out.println(stockExchange.getMyStock().generateStringOfAvailableShares());
                 stockExchange.updatePrices();
                 stockExchange.executeValidTrades();
                 Thread.sleep(5000);
             }
         }catch (InterruptedException ex)
         {
-            System.out.println("Interrupt Exception");
+            Thread.currentThread().interrupt();
         }
     }
 

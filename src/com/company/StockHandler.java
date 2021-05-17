@@ -56,19 +56,23 @@ public class StockHandler {
         final int minPriceChange = 1;
         final int maxPriceChange = 3;
         int priceChangeValue;
+        double newPrice;
         List<Share> availableShares = myStock.getAvailableShares();
 
         for(Share ts : availableShares)
         {
-            priceChangeValue = generateRandomIntInRange(maxPriceChange, minPriceChange);
-            if(isOperationAdding)
-            {
-                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
-            }
-            else
-            {
-                    ts.setPricePerShare(ts.getPricePerShare() + priceChangeValue);
-            }
+                priceChangeValue = generateRandomIntInRange(maxPriceChange, minPriceChange);
+                if (isOperationAdding) {
+                    newPrice = ts.getPricePerShare() + priceChangeValue;
+                    if (newPrice > Share.maxPricePerShare)
+                        newPrice = Share.maxPricePerShare;
+                    ts.setPricePerShare(newPrice);
+                } else {
+                    newPrice = ts.getPricePerShare() + priceChangeValue;
+                    if (newPrice > Share.maxPricePerShare)
+                        newPrice = Share.maxPricePerShare;
+                    ts.setPricePerShare(newPrice);
+                }
             for( Share us : myUser.getMyShares() )
             {
                 if( ts.getName().compareTo( us.getName()) == 0 )
@@ -91,6 +95,9 @@ public class StockHandler {
         final int minNameIndex = 0;
         final int maxNameIndex = 14;
 
+        final int minPricePerShare = 1;
+        final int maxPricePerShare = 1000;
+
         final int maxNumberOfAllExistingShares = 50000;
         final int minNumberOfAllExistingShares = 10000;
         int numberOfAllExhistingShares;
@@ -107,7 +114,7 @@ public class StockHandler {
                     myStock.getAvailableShares().add(
                             new Share(
                                         StockExchange.availableSharesArray[possibleSharesNameIndex[randomShareNameIndex]],
-                                        generateRandomIntInRange(Share.maxPricePerShare, Share.minPricePerShare),
+                                        generateRandomIntInRange(maxPricePerShare, minPricePerShare),
                                         numberOfAllExhistingShares,
                                         numberOfAllExhistingShares
                                      )
@@ -175,35 +182,61 @@ public class StockHandler {
     }
 
     public static void main(String[] args) {
-        // write your code here
+
         UserAccount userAccount = new UserAccount();
         StockHandler stockHandler = new StockHandler(userAccount);
         UserInteractions userInteractions = new UserInteractions(stockHandler, userAccount);
+
         stockHandler.initStockExchange();
+
         StockRunCycle sh = new StockRunCycle(stockHandler);
         sh.start();
+
         while (true)
         {
-            System.out.println(userInteractions.generateUserAvailableActionsLegend());
-            int userInput = userInteractions.getIntFromUser();
-            switch (userInput) {
-                case 1:
-                    System.out.println(stockHandler.getMyStock().generateStringOfAvailableShares());
-                    break;
-                case 2:
-                    System.out.println(
-                                        "===== Current Stock Prices =====\n" +
-                                        stockHandler.getMyStock().generateStringOfAvailableShares()
-                                      );
-                    System.out.println(stockHandler.getMyUser().generateStringOfOwnedShares());
-                    userInteractions.makeTradeRequest();
-                    break;
-                case 3:
-                    System.out.println(stockHandler.getMyUser().generateStringOfOwnedShares());
-                    break;
-                case 4:
-                    System.exit(0);
-                    break;
+            try {
+                System.out.println(userInteractions.generateUserAvailableActionsLegend());
+                int userInput = userInteractions.getIntFromUser();
+                switch (userInput) {
+                    case 1:
+                        System.out.println(stockHandler.getMyStock().generateStringOfAvailableShares());
+                        break;
+                    case 2:
+                        System.out.println(
+                                            "===== Current Stock Prices =====\n" +
+                                            stockHandler.getMyStock().generateStringOfAvailableShares()
+                                          );
+                        System.out.println(stockHandler.getMyUser().generateStringOfOwnedShares());
+                        userInteractions.makeTradeRequest();
+                        break;
+                    case 3:
+                        System.out.println(stockHandler.getMyUser().generateStringOfOwnedShares());
+                        break;
+                    case 4:
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Selected option doesn't exist");
+                }
+            }
+            catch (InvalidShareOrderValueException ex)
+            {
+                System.out.println("Invalid number of shares in your order");
+            }
+            catch (ShareNotExistingException ex)
+            {
+                System.out.println("Share with given index does not exist");
+            }
+            catch (CannotSellGivenNumberOfSharesException ex)
+            {
+                if(ex.getValueToSell() <= 0 )
+                    System.out.println("Ivalid number of Shares: " + ex.getValueToSell() + '\n');
+                else
+                    System.out.println("Cannot sell shares you don't own\n" + ex.getMessage());
+            }
+            catch (InvalidTradeOperationException ex)
+            {
+                System.out.println(ex.getMessage() + " your input: " + ex.getOperationInput());
             }
         }
 
