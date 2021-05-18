@@ -36,7 +36,7 @@ public class UserInteractions {
 
     public void makeTradeRequest() throws ShareNotExistingException,
                                           InvalidShareOrderValueException,
-            CannotSellGivenNumberOfSharesException,
+                                          CannotSellGivenNumberOfSharesException,
                                           InvalidTradeOperationException
     {
         final int shareIndex;
@@ -52,7 +52,7 @@ public class UserInteractions {
         System.out.println("Input index of Share ( it is the number inside square braces in the share list ):\n");
         shareIndex = getIntFromUser();
 
-        if(shareIndex > stockHandler.getMyStock().getNumberOfShares())
+        if(shareIndex > stockHandler.getMyStock().getNumberOfShares() - 1 )
             throw new ShareNotExistingException(shareIndex, "Invalid share index number");
 
         System.out.println("Input operation type: 0 - Buy, 1 - Sell\n");

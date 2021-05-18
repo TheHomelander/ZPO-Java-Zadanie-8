@@ -61,10 +61,13 @@ public class StockExchange {
     {
         double newPrice;
         Share userShare;
-        if((shareInStock.getNumberOfOwnedShares() - numberOfShares < 0 ))numberOfShares = shareInStock.getNumberOfOwnedShares();
 
         shareInStock.setNumberOfOwnedShares(shareInStock.getNumberOfOwnedShares() - numberOfShares);
         newPrice = shareInStock.getPricePerShare() + ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
+
+        if(newPrice > Share.maxPricePerShare)
+            newPrice = Share.maxPricePerShare;
+
         shareInStock.setPricePerShare(newPrice);
 
         if( (userShare = getShareByName(shareInStock.getName(), myUser.getMyShares())) == null )
@@ -73,10 +76,8 @@ public class StockExchange {
             myUser.getMyShares().add(userShare);
         }
         else
-        {
             userShare.setPricePerShare(newPrice);
-            userShare.setPricePerShare(newPrice);
-        }
+
 
     }
 
@@ -85,6 +86,9 @@ public class StockExchange {
         Share userShare = getShareByName(shareInStock.getName(), myUser.getMyShares());
 
         double newPrice = shareInStock.getPricePerShare() - ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
+
+        if(newPrice < Share.minPricePerShare)
+            newPrice = Share.minPricePerShare;
 
         userShare.setNumberOfOwnedShares(userShare.getNumberOfOwnedShares() - numberOfShares);
         userShare.setPricePerShare(newPrice);

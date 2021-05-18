@@ -12,7 +12,8 @@ public class UserAccount {
     private static int iD = 0;
 
 
-    public UserAccount() {
+    public UserAccount(String userName) {
+        this.userName = userName;
         idLabel = "USER" + iD;
         iD = iD + 1;
     }
@@ -50,7 +51,7 @@ public class UserAccount {
     {
         String ownedShares = "=== Your Owned shares ===\n";
         for(Share ts : myShares)ownedShares = ownedShares + '\n' + ts.toString();
-        return ownedShares + "========= End  ==========\n";
+        return ownedShares + "\n\n========= End  ==========\n";
     }
 
 }

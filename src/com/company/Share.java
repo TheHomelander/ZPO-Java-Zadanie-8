@@ -54,7 +54,8 @@ public class Share {
         this.numberOfOwnedShares = numberOfOwnedShares;
     }
 
-    public double getPricePerShare() {
+    public double getPricePerShare()
+    {
         return pricePerShare;
     }
 

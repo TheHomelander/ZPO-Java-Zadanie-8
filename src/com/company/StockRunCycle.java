@@ -24,5 +24,11 @@ public class StockRunCycle extends  Thread{
         }
     }
 
+    public StockHandler getStockExchange() {
+        return stockExchange;
+    }
 
+    public void setStockExchange(StockHandler stockExchange) {
+        this.stockExchange = stockExchange;
+    }
 }

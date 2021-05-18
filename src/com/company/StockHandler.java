@@ -38,13 +38,6 @@ public class StockHandler {
         this.currentTrades = currentTrades;
     }
 
-    public void initStockExchange()
-    {
-        myStock = new StockExchange();
-        initShares();
-    }
-
-
     private int generateRandomIntInRange(int max, int min)
     {
         int i = (int) (Math.random() * (max - min + 1)) + min;
@@ -52,15 +45,20 @@ public class StockHandler {
     }
 
     public void updatePrices() {
-        boolean isOperationAdding = ( generateRandomIntInRange(0 , 1) == 0 );
+        boolean isOperationAdding;
+        final int operationAddition = 0;
+        final int operationSubtraction = 1;
+
         final int minPriceChange = 1;
         final int maxPriceChange = 3;
         int priceChangeValue;
+
         double newPrice;
         List<Share> availableShares = myStock.getAvailableShares();
 
         for(Share ts : availableShares)
         {
+                isOperationAdding = ( generateRandomIntInRange(operationAddition , operationSubtraction) == operationAddition );
                 priceChangeValue = generateRandomIntInRange(maxPriceChange, minPriceChange);
                 if (isOperationAdding) {
                     newPrice = ts.getPricePerShare() + priceChangeValue;
@@ -79,13 +77,12 @@ public class StockHandler {
                 {
                     us.setPricePerShare(ts.getPricePerShare());
                 }
-
             }
         }
     }
 
 
-    private void initShares() {
+    public void initStockExchange() {
         Integer[] possibleSharesNameIndex = {0, 1 ,2 ,3 ,4 , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
         final int maxShares = 10;
         final int minShares = 5;
@@ -102,6 +99,8 @@ public class StockHandler {
         final int minNumberOfAllExistingShares = 10000;
         int numberOfAllExhistingShares;
         int randomShareNameIndex ;
+
+        myStock = new StockExchange();
 
         for(int i = 0 ; i < numberOfSharesToRandomize ; i++)
         {
@@ -183,12 +182,12 @@ public class StockHandler {
 
     public static void main(String[] args) {
 
-        UserAccount userAccount = new UserAccount();
+        UserAccount userAccount = new UserAccount("Admin");
         StockHandler stockHandler = new StockHandler(userAccount);
         UserInteractions userInteractions = new UserInteractions(stockHandler, userAccount);
 
         stockHandler.initStockExchange();
-
+        System.out.println(stockHandler.getMyStock().getNumberOfShares());
         StockRunCycle sh = new StockRunCycle(stockHandler);
         sh.start();
 
@@ -230,7 +229,7 @@ public class StockHandler {
             catch (CannotSellGivenNumberOfSharesException ex)
             {
                 if(ex.getValueToSell() <= 0 )
-                    System.out.println("Ivalid number of Shares: " + ex.getValueToSell() + '\n');
+                    System.out.println("Invalid number of Shares: " + ex.getValueToSell() + '\n');
                 else
                     System.out.println("Cannot sell shares you don't own\n" + ex.getMessage());
             }
