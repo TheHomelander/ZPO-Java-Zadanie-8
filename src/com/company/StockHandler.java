@@ -44,7 +44,8 @@ public class StockHandler {
         return i;
     }
 
-    public void updatePrices() {
+    public void updatePrices() throws SharePriceOutOfBoundsException
+    {
         boolean isOperationAdding;
         final int operationAddition = 0;
         final int operationSubtraction = 1;
@@ -63,12 +64,12 @@ public class StockHandler {
                 if (isOperationAdding) {
                     newPrice = ts.getPricePerShare() + priceChangeValue;
                     if (newPrice > Share.maxPricePerShare)
-                        newPrice = Share.maxPricePerShare;
+                        throw new SharePriceOutOfBoundsException( ts, newPrice, "Updated Price Value is out of bounds" );
                     ts.setPricePerShare(newPrice);
                 } else {
                     newPrice = ts.getPricePerShare() + priceChangeValue;
                     if (newPrice > Share.maxPricePerShare)
-                        newPrice = Share.maxPricePerShare;
+                        throw new SharePriceOutOfBoundsException( ts, newPrice, "Updated Price Value is out of bounds" );
                     ts.setPricePerShare(newPrice);
                 }
             for( Share us : myUser.getMyShares() )
@@ -83,6 +84,7 @@ public class StockHandler {
 
 
     public void initStockExchange() {
+        myStock = new StockExchange();
         Integer[] possibleSharesNameIndex = {0, 1 ,2 ,3 ,4 , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
         final int maxShares = 10;
         final int minShares = 5;
@@ -100,8 +102,6 @@ public class StockHandler {
         int numberOfAllExhistingShares;
         int randomShareNameIndex ;
 
-        myStock = new StockExchange();
-
         for(int i = 0 ; i < numberOfSharesToRandomize ; i++)
         {
             numberOfAllExhistingShares = generateRandomIntInRange(maxNumberOfAllExistingShares, minNumberOfAllExistingShares);
@@ -112,7 +112,7 @@ public class StockHandler {
                 {
                     myStock.getAvailableShares().add(
                             new Share(
-                                        StockExchange.availableSharesArray[possibleSharesNameIndex[randomShareNameIndex]],
+                                        StockExchange.availableSharesNameArray[possibleSharesNameIndex[randomShareNameIndex]],
                                         generateRandomIntInRange(maxPricePerShare, minPricePerShare),
                                         numberOfAllExhistingShares,
                                         numberOfAllExhistingShares
@@ -137,7 +137,7 @@ public class StockHandler {
                 "*****************************************************\n" ;
     }
 
-    public void executeValidTrades()
+    public void executeValidTrades() throws SharePriceOutOfBoundsException
     {
         Share shareInStock;
         Trade trade;
@@ -187,7 +187,6 @@ public class StockHandler {
         UserInteractions userInteractions = new UserInteractions(stockHandler, userAccount);
 
         stockHandler.initStockExchange();
-        System.out.println(stockHandler.getMyStock().getNumberOfShares());
         StockRunCycle sh = new StockRunCycle(stockHandler);
         sh.start();
 
@@ -221,10 +220,12 @@ public class StockHandler {
             catch (InvalidShareOrderValueException ex)
             {
                 System.out.println("Invalid number of shares in your order");
+                ex.printStackTrace(System.err);
             }
             catch (ShareNotExistingException ex)
             {
                 System.out.println("Share with given index does not exist");
+                ex.printStackTrace(System.err);
             }
             catch (CannotSellGivenNumberOfSharesException ex)
             {
@@ -232,10 +233,17 @@ public class StockHandler {
                     System.out.println("Invalid number of Shares: " + ex.getValueToSell() + '\n');
                 else
                     System.out.println("Cannot sell shares you don't own\n" + ex.getMessage());
+                ex.printStackTrace(System.err);
             }
             catch (InvalidTradeOperationException ex)
             {
                 System.out.println(ex.getMessage() + " your input: " + ex.getOperationInput());
+                ex.printStackTrace(System.err);
+            }
+            catch (SharePriceOutOfBoundsException ex)
+            {
+                System.out.println("Share price out of bounds" + ex.getMessage());
+                ex.printStackTrace(System.err);
             }
         }
 

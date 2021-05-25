@@ -6,11 +6,11 @@ import java.util.List;
 public class StockExchange {
     private volatile List<Share> availableShares = new ArrayList<>();
     private int numberOfShares = 0;
-    public static final String[] availableSharesArray = {
-                                                         "PKOBP", "PNORLEN", "CDPROJECT", "TESLA", "LOTOS",
-                                                         "ALLEGRO", "PZU", "ACTION", "AGORA", "AIRWAY",
-                                                         "ALTO", "AMICA", "ARCTIC", "GME", "BALTONA"
-                                                        };
+    public static final String[] availableSharesNameArray = {
+                                                             "PKOBP", "PNORLEN", "CDPROJECT", "TESLA", "LOTOS",
+                                                             "ALLEGRO", "PZU", "ACTION", "AGORA", "AIRWAY",
+                                                             "ALTO", "AMICA", "ARCTIC", "GME", "BALTONA"
+                                                            };
 
 
 
@@ -40,7 +40,7 @@ public class StockExchange {
         int index = 0;
         for(Share ts : availableShares){
             generatedString += "["+ index + "]" + ts.toString() + "\n";
-            index++;
+            index = index + 1;
         }
         return generatedString;
     }
@@ -57,7 +57,7 @@ public class StockExchange {
         return  null;
     }
 
-    public void buyStock(Share shareInStock, int numberOfShares, UserAccount myUser)
+    public void buyStock(Share shareInStock, int numberOfShares, UserAccount myUser) throws SharePriceOutOfBoundsException
     {
         double newPrice;
         Share userShare;
@@ -66,7 +66,7 @@ public class StockExchange {
         newPrice = shareInStock.getPricePerShare() + ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
 
         if(newPrice > Share.maxPricePerShare)
-            newPrice = Share.maxPricePerShare;
+            throw new SharePriceOutOfBoundsException(shareInStock, newPrice, "Price too big while selling");
 
         shareInStock.setPricePerShare(newPrice);
 
@@ -81,14 +81,14 @@ public class StockExchange {
 
     }
 
-    public void sellStock(Share shareInStock, int numberOfShares, UserAccount myUser)
+    public void sellStock(Share shareInStock, int numberOfShares, UserAccount myUser) throws SharePriceOutOfBoundsException
     {
         Share userShare = getShareByName(shareInStock.getName(), myUser.getMyShares());
 
         double newPrice = shareInStock.getPricePerShare() - ((double)(numberOfShares) / (shareInStock.getNumberOfAllAvailableShares()) * shareInStock.getPricePerShare());
 
         if(newPrice < Share.minPricePerShare)
-            newPrice = Share.minPricePerShare;
+            throw new SharePriceOutOfBoundsException(shareInStock, newPrice, "Updated price per share is too small");
 
         userShare.setNumberOfOwnedShares(userShare.getNumberOfOwnedShares() - numberOfShares);
         userShare.setPricePerShare(newPrice);

@@ -9,21 +9,6 @@ public class StockRunCycle extends  Thread{
         this.stockExchange = stockExchange;
     }
 
-    public void run()
-    {
-        try
-        {
-            while (true) {
-                stockExchange.updatePrices();
-                stockExchange.executeValidTrades();
-                Thread.sleep(5000);
-            }
-        }catch (InterruptedException ex)
-        {
-            Thread.currentThread().interrupt();
-        }
-    }
-
     public StockHandler getStockExchange() {
         return stockExchange;
     }
@@ -31,4 +16,30 @@ public class StockRunCycle extends  Thread{
     public void setStockExchange(StockHandler stockExchange) {
         this.stockExchange = stockExchange;
     }
+
+    public void run()
+    {
+        while (true)
+        {
+            try
+            {
+
+                stockExchange.updatePrices();
+                stockExchange.executeValidTrades();
+                Thread.sleep(5000);
+
+            }
+            catch (InterruptedException ex)
+            {
+                Thread.currentThread().interrupt();
+            }
+            catch (SharePriceOutOfBoundsException ex)
+            {
+                System.err.println("Tried to update Share: " + ex.getShare().getName() + " price with invalid value" + ex.getSharePrice());
+                ex.getShare().setPricePerShare( ex.generateCorrectPriceWithinBounds(ex.getSharePrice()) );
+            }
+        }
+    }
+
+
 }

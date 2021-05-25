@@ -37,7 +37,8 @@ public class UserInteractions {
     public void makeTradeRequest() throws ShareNotExistingException,
                                           InvalidShareOrderValueException,
                                           CannotSellGivenNumberOfSharesException,
-                                          InvalidTradeOperationException
+                                          InvalidTradeOperationException,
+                                          SharePriceOutOfBoundsException
     {
         final int shareIndex;
         final int operationType;
